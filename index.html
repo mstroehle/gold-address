@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bitcoin Gold address converter</title>
+    <script type="text/javascript" src="bs58check.js"></script>
+    <script type="text/javascript">
+        const BTC_VER = 0;
+        const BTG_VER = 38;
+        const EXPLORER = {
+            0: {"name": "blockchain.info", "url": "https://blockchain.info/address/"},
+            38: {"name": "btgexp.com", "url": "https://btgexp.com/address/"}
+        };
+
+        function getConvAddr() {
+            return document.getElementById("convAddr").value;
+        }
+
+        function setOutAddr(val) {
+            document.getElementById("outAddr").value = val;
+        }
+
+        function setAddrType(val) {
+            document.getElementById("addrType").innerHTML = val;
+        }
+
+        function clearBlockExplorerLink() {
+            document.getElementById("blockExplorer").innerHTML = "";
+        }
+
+        function setBlockExplorerLink(addr, addrType) {
+            var explorer = EXPLORER[addrType];
+            document.getElementById("blockExplorer").innerHTML = "<a href=\"" + explorer["url"] + addr + "\" target=\"_blank\">" + explorer["name"] + "</a>";
+        }
+
+        function tryConvertAddr() {
+            var lastAddr = null;
+            var lastAddrType = null;
+
+            var convAddr = getConvAddr();
+            var decoded;
+            setOutAddr("");
+            clearBlockExplorerLink();
+
+            try {
+                decoded = bs58check.decode(convAddr);
+            } catch (ex) {
+                setAddrType("Invalid checksum");
+                return;
+            }
+
+            if (decoded.length != 21) {
+                setAddrType("Not an address (this tool does NOT accept private keys!)");
+                return;
+            }
+
+            switch (decoded[0]) {
+                case BTC_VER:
+                    decoded[0] = BTG_VER;
+                    lastAddr = bs58check.encode(decoded);
+                    lastAddrType = decoded[0];
+                    setOutAddr(lastAddr)
+                    setAddrType("Bitcoin to Bitcoin Gold");
+                    setBlockExplorerLink(lastAddr, lastAddrType);
+                    break;
+                case BTG_VER:
+                    decoded[0] = BTC_VER;
+                    lastAddr = bs58check.encode(decoded);
+                    lastAddrType = decoded[0];
+                    setOutAddr(lastAddr)
+                    setAddrType("Bitcoin Gold to Bitcoin");
+                    setBlockExplorerLink(lastAddr, lastAddrType);
+                    break;
+                default:
+                    setAddrType("Unknown address type");
+            }
+
+        }
+    </script>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <th>Address to convert</td>
+            <th>Converted address</td>
+            <th>Address type</td>
+            <th>Block explorer</th>
+        </tr>
+        <tr>
+            <td><input type="text" id="convAddr" oninput="tryConvertAddr()" placeholder="Paste your address here" style="width: 350px"></td>
+            <td><input type="text" id="outAddr" readonly="readonly" placeholder="The converted address will appear here" style="width: 350px"></td>
+            <td><div id="addrType" style="text-align: center;"></div></td>
+            <td><div id="blockExplorer" style="text-align: center;"></div></td>
+        </tr>
+    </table>
+
+    <p>This tool can be used to verify your balance on the Bitcoin Gold chain after the fork.<br />
+    Paste your BTC or BTG address into the first field and if it's correct, you'll see the corresponding address of another network next to it with a block explorer link.<br />
+    Due to the two cryptocurrencies using different address versions, you'll need to convert your Bitcoin address before searching for it in a Bitcoin Gold explorer.<br />
+    SegWit (P2SH) addresses are not yet supported. Please don't paste your private keys there, it'll not work and they might get stolen if someone hijacks this page.<br />
+    <br /></p>
+    <p>Written by SopaXorzTaker, uses the <a href="https://github.com/bitcoinjs/bs58check">bs58check</a> library (MIT, by bitcoinjs.org).<br />
+    <small>Bitcoin (BTC) donations welcome: 34rHZwgXDnkKvrBAU2fJAhjySTTEFroekd.</small></p>
+</body>
+</html>
