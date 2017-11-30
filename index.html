@@ -6,9 +6,13 @@
     <script type="text/javascript">
         const BTC_VER = 0;
         const BTG_VER = 38;
+        const BTC_SCRIPT_VER = 5;
+        const BTG_SCRIPT_VER = 23;
         const EXPLORER = {
             0: {"name": "blockchain.info", "url": "https://blockchain.info/address/"},
-            38: {"name": "btgexp.com", "url": "https://btgexp.com/address/"}
+            38: {"name": "btgexp.com", "url": "https://btgexp.com/address/"},
+            5: {"name": "blockchain.info", "url": "https://blockchain.info/address/"},
+            23: {"name": "btgexp.com", "url": "https://btgexp.com/address/"}
         };
 
         function getConvAddr() {
@@ -70,6 +74,23 @@
                     setAddrType("Bitcoin Gold to Bitcoin");
                     setBlockExplorerLink(lastAddr, lastAddrType);
                     break;
+                case BTC_SCRIPT_VER:
+                    decoded[0] = BTG_SCRIPT_VER;
+                    lastAddr = bs58check.encode(decoded);
+                    lastAddrType = decoded[0];
+                    setOutAddr(lastAddr)
+                    setAddrType("Bitcoin to Bitcoin Gold (Script)");
+                    setBlockExplorerLink(lastAddr, lastAddrType);
+                    break;
+                case BTG_SCRIPT_VER:
+                    decoded[0] = BTC_SCRIPT_VER;
+                    lastAddr = bs58check.encode(decoded);
+                    lastAddrType = decoded[0];
+                    setOutAddr(lastAddr)
+                    setAddrType("Bitcoin Gold to Bitcoin (Script)");
+                    setBlockExplorerLink(lastAddr, lastAddrType);
+                    break;
+
                 default:
                     setAddrType("Unknown address type");
             }
@@ -97,7 +118,7 @@
     <p>This tool can be used to verify your balance on the Bitcoin Gold chain after the fork.<br />
     Paste your BTC or BTG address into the first field and if it's correct, you'll see the corresponding address of another network next to it with a block explorer link.<br />
     Due to the two cryptocurrencies using different address versions, you'll need to convert your Bitcoin address before searching for it in a Bitcoin Gold explorer.<br />
-    SegWit (P2SH) addresses are not yet supported. Please don't paste your private keys there, it'll not work and they might get stolen if someone hijacks this page.<br />
+    SegWit and multisig address support is experimental. Please don't paste your private keys there, it'll not work and they might get stolen if someone hijacks this page.<br />
     <br /></p>
     <p>Written by SopaXorzTaker, uses the <a href="https://github.com/bitcoinjs/bs58check">bs58check</a> library (MIT, by bitcoinjs.org).<br />
     <small>Bitcoin (BTC) donations welcome: 34rHZwgXDnkKvrBAU2fJAhjySTTEFroekd.</small></p>
